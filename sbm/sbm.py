@@ -25,8 +25,11 @@ class SBM(RanGraphGen):
 
         communities = [[] for _ in range(K)]
 
+        k = 0
         for node in range(n):
-            k = int(np.rint(float(node) / np.sum(block_sizes)))
+            if node == np.sum(block_sizes[:k+1]):
+                k += 1
+            #k = int(np.rint(float(node) / np.sum(block_sizes)))
             communities[k].append(str(node))
             graph.add_node(str(node))
             node2community.update({str(node): [k]})

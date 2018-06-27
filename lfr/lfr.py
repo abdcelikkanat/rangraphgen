@@ -2,13 +2,13 @@ import networkx as nx
 import igraph as ig
 import numpy as np
 from rangraphgen.rangraphgen import RanGraphGen
-from networkx.algorithms.community import LFR_benchmark_graph
+from networkx.algorithms.community.community_generators import LFR_benchmark_graph
 
 
 class LFR(RanGraphGen):
 
-    def __init__(self):
-        RanGraphGen.__init__(self)
+    def __init__(self, model):
+        RanGraphGen.__init__(self, model)
 
     def lfr_model(self):
 
@@ -34,6 +34,60 @@ class LFR(RanGraphGen):
 
             return graph
 
+    def build_graph(self, max_of_trials=5):
+
+        n = self._model['lfr_N']
+        tau1 = self._model['lfr_tau1']  # power law exponent for node degree distribution
+        tau2 = self._model['lfr_tau2']  # power law exponent for community size distribution
+        mu = self._model['lfr_mu']  # fraction of edges between communities
+        max_deg = self._model['lfr_max_deg'] if 'lfr_max_deg' in self._model else n
+        min_comm = self._model['lfr_min_community']
+        max_comm = self._model['lfr_max_community'] if 'lfr_max_community' in self._model else n
+
+        trial_count = 0
+        while trial_count < max_of_trials:
+            try:
+                if 'lfr_average_degree' in self._model:
+                    avg_deg = self._model['lfr_average_degree']
+                    graph = LFR_benchmark_graph(n=n, tau1=tau1, tau2=tau2, mu=mu,
+                                                      average_degree=avg_deg, max_degree=max_deg,
+                                                      min_community=min_comm, max_community=max_comm)
+
+                elif 'lfr_min_degree' in self._model:
+                    min_deg = self._model['lfr_min_degree']
+                    graph = LFR_benchmark_graph(n=n, tau1=tau1, tau2=tau2, mu=mu,
+                                                      min_degree=min_deg, max_degree=max_deg,
+                                                      min_community=min_comm, max_community=max_comm)
+
+                trial_count += 1
+            except nx.exception.ExceededMaxIterations:
+                pass
+
+        #mapping = {node: str(node) for node in self._graph.nodes()}
+        #self._graph = nx.relabel_nodes(self._graph, mapping)
+        #communities = {frozenset(graph.nodes[v]['community']) for v in graph}
+        #ss = nx.get_node_attributes(self._graph, 'community')
+
+        self._graph = nx.Graph()
+
+        for node in graph.nodes():
+            self._graph.add_node(str(node))
+
+        for edge in graph.edges():
+            self._graph.add_edge(str(edge[0]), str(edge[1]))
+
+        communities = {frozenset(graph.nodes[v]['community']) for v in graph}
+        for comm in communities:
+            print(v for v in comm)
+
+        """
+        g = nx.Graph()
+        for edge in self._graph.edges():
+            g.add_edge(edge[0], edge[1])
+
+        print(self._graph.number_of_nodes())
+        nx.write_gml(g, "./t1.gml")
+        """
 """
 
 model = {}
