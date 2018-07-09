@@ -79,7 +79,7 @@ class LFR(RanGraphGen):
         for comm_label, comm in enumerate(communities):
             for node in list(comm):
                 node2communities[str(node)].append(comm_label)
-        nx.set_node_attributes(self._graph, values=node2communities, name='communities')
+        nx.set_node_attributes(self._graph, values=node2communities, name='community')
 
         """
         g = nx.Graph()

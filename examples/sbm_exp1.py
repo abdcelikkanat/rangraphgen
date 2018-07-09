@@ -5,9 +5,9 @@ import numpy as np
 model = {}
 model['sbm_N'] = 1200  # the number of nodes
 #model['sbm_P'] = [[0.6, 0.2], [0.2, 0.8]]  # edge probability matrix between nodes belonging different communities
-l = 3
-within_p = 0.4
-accros_p = 0.3
+l = 8
+within_p = 0.3
+accros_p = 0.2
 #model['sbm_P'] = [[within_p, accros_p], [accros_p, within_p]]
 #model['sbm_P'] = [[within_p, accros_p, accros_p], [accros_p, within_p, accros_p], [accros_p, accros_p, within_p]]
 model['sbm_P'] = np.triu(np.ones((l, l), dtype=np.float)*accros_p, 1) + np.tril(np.ones((l, l), dtype=np.float)*accros_p, -1)
@@ -25,7 +25,7 @@ g = sbm.get_graph()
 
 import networkx as nx
 comm = nx.get_node_attributes(g, 'community')
-counts = [0, 0, 0]
+counts = [0 for _ in range(l)]
 for node in g.nodes():
     counts[int(comm[node][0])] += 1
 print(counts)
