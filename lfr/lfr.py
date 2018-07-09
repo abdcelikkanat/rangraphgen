@@ -1,6 +1,4 @@
 import networkx as nx
-import igraph as ig
-import numpy as np
 from rangraphgen.rangraphgen import RanGraphGen
 from networkx.algorithms.community.community_generators import LFR_benchmark_graph
 
@@ -77,8 +75,11 @@ class LFR(RanGraphGen):
             self._graph.add_edge(str(edge[0]), str(edge[1]))
 
         communities = {frozenset(graph.nodes[v]['community']) for v in graph}
-        for comm in communities:
-            print(v for v in comm)
+        node2communities = {node: [] for node in self._graph.nodes()}
+        for comm_label, comm in enumerate(communities):
+            for node in list(comm):
+                node2communities[str(node)].append(comm_label)
+        nx.set_node_attributes(self._graph, values=node2communities, name='communities')
 
         """
         g = nx.Graph()
